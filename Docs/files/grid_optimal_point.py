@@ -8,9 +8,9 @@ from scipy.interpolate import RBFInterpolator
 from scipy.spatial import KDTree
 import numba 
 
-from common_functions import closest_point, closest_border_point, euclidean_distance, move_from_A_to_B_with_x1_displacement 
-from common_functions import get_multi_dim_border_points, det_constraints, constraint_bounds, real_world_constraints
-
+from .common_functions import closest_point, closest_border_point, euclidean_distance, move_from_A_to_B_with_x1_displacement 
+from .common_functions import get_multi_dim_border_points, det_constraints, constraint_bounds, real_world_constraints
+from .common_functions import balance_dataset, check_class_balance, convert_columns
 
 @numba.njit
 def prediction(Z, grid, epsilon): 
@@ -151,7 +151,7 @@ def compute_decision_boundary_points_all_features(model, X, resolution=100, epsi
     return pd.DataFrame(np.unique(boundary_points,axis=0), columns=X.columns)  # Unique points as DataFrame
 
 
-def optimal_point(dataset, model, desired_class, original_class, undesired_coords, resolution=100, point_epsilon=0.1, epsilon=0.01, constraints=[], deltas=[]): 
+def optimal_point(dataset, model, desired_class, original_class, chosen_row=-1, resolution=100, point_epsilon=0.1, epsilon=0.01, constraints=[], deltas=[], plot=False): 
     """
     Finds the closest point to the decision boundary from an undesired point using a grid-based
     approximation of the boundary, optionally constrained by real-world conditions. This generates
@@ -172,8 +172,8 @@ def optimal_point(dataset, model, desired_class, original_class, undesired_coord
     original_class : int or label
         The actual class label of the undesired point.
     
-    undesired_coords : list or array
-        The coordinates of the original ("unhealthy") point.
+    chosen_row :  int 
+        The selected row of the dataset to find the counterfactual explanation for
     
     resolution : int, optional
         Number of points to sample along each feature axis for the grid in boundary computation.
@@ -232,18 +232,45 @@ def optimal_point(dataset, model, desired_class, original_class, undesired_coord
     >>> optimal = optimal_point(dataset, model, desired_class=1, original_class=0, undesired_coords=undesired_coords, resolution=20)
     >>> print(optimal)  # e.g., array([[1.5, 0.5]])
     """
-    X_train, y_train = dataset.iloc[:, 0:dataset.shape[1]-1], dataset.iloc[:, -1]  # Extract features and labels
-    n_features = X_train.shape[1]  # Get number of features
 
-    print("fitting model...")
-    model.fit(X_train, y_train)  # Train the model
-    print("model finished.")
+    # Convert categorical columns if needed (before balancing)
+    inv_col_map = convert_columns(dataset)
+
+    # Extract features and labels before balancing
+    X_orig = dataset.iloc[:, :-1]
+    
+    # Save the original row's feature values
+    undesired_coords = X_orig.iloc[chosen_row, :].copy()
+
+    # Balance the dataset
+    dataset = balance_dataset(df=dataset, target=dataset.columns[-1])
+    
+    if not check_class_balance(dataset, target=dataset.columns[-1]):
+        raise RuntimeError("Failed to balance classes for binary classification")
+
+    # Extract new training features/labels after balancing
+    X_train = dataset.iloc[:, :-1]
+    y_train = dataset.iloc[:, -1]
+    n_features = X_train.shape[1]
+
+    # Train the model
+    print("Fitting model...")
+    model.fit(X_train, y_train)
+    print("Model training complete.")
 
     print("boundary points started generation...")
-    # Use grid-based method to approximate boundary points
-    boundary_points = compute_decision_boundary_points_all_features(model, X_train, resolution=resolution, epsilon=point_epsilon)
-    print("boundary points finished.")
+    try: 
+        # Use grid-based method to approximate boundary points
+        boundary_points = compute_decision_boundary_points_all_features(model, X_train, resolution=resolution, epsilon=point_epsilon)
+        print("boundary points finished.")
+    except MemoryError: 
+        print(f"Not enough memory to generate a grid with {resolution}^{n_features} number of points")
+        return 
 
+    if chosen_row == -1: 
+        raise RuntimeError("You need to choose a specific row of the dataset to run this.")
+    
+    undesired_coords = X_train.iloc[chosen_row, :]
     # Fitting the boundary points to the constraints provided by the real world
     contours = real_world_constraints(points=boundary_points, undesired_coords=undesired_coords, constraints=constraints)
     contours = contours.to_numpy()  # Convert to NumPy for further processing
@@ -254,7 +281,8 @@ def optimal_point(dataset, model, desired_class, original_class, undesired_coord
     print("Finding the closest point from the contour line to the point...")
     optimal_datapt = closest_point(undesired_datapt, contour=contours)
     print("Finding the closest point from the contour line to the point.")  # Note: Duplicate print, possibly a typo
-    plt.plot(contours[:,0], contours[:,1], lw=0.5, color='red')  # Plot contours (assumes 2D)
+    if plot:
+        plt.plot(contours[:,0], contours[:,1], lw=0.5, color='red')  # Plot contours (assumes 2D)
 
     if desired_class != original_class: 
         D = optimal_datapt - undesired_datapt  # Direction vector to boundary
@@ -262,7 +290,7 @@ def optimal_point(dataset, model, desired_class, original_class, undesired_coord
         optimal_datapt = move_from_A_to_B_with_x1_displacement(undesired_datapt, optimal_datapt, deltas=deltas)  # Move point
     else: 
         closest_boundedpt = None
-        deltas, len_constr = det_constraints(datapt=undesired_datapt[0], changes=deltas)  # Determine constraints (note: param 'changes' may be a typo for 'deltas')
+        deltas, len_constr = det_constraints(datapt=undesired_datapt[0], deltas=deltas)  # Determine constraints (note: param 'changes' may be a typo for 'deltas')
         bounded_contour_pts = None
 
         if len_constr > n_features: 
@@ -272,7 +300,8 @@ def optimal_point(dataset, model, desired_class, original_class, undesired_coord
             bounded_contour_pts = get_multi_dim_border_points(center=undesired_datapt[0], extents=deltas, step=0.05)
             np_bounded_contour = np.array(bounded_contour_pts)  # To NumPy
             x_values, y_values = np_bounded_contour[:,0], np_bounded_contour[:, 1]  # Extract for plotting (assumes 2D)
-            plt.scatter(x_values, y_values, marker='o')  # Plot bounded points
+            if plot:
+                plt.scatter(x_values, y_values, marker='o')  # Plot bounded points
             closest_boundedpt = closest_border_point(bounded_contour_pts, contour=contours)  # Find closest on border (constraints in all dimensions)
         else: 
             # Generate bounded contour points for partial constraints 
@@ -281,9 +310,20 @@ def optimal_point(dataset, model, desired_class, original_class, undesired_coord
 
         D = closest_boundedpt - undesired_datapt  # Direction vector
         optimal_datapt = move_from_A_to_B_with_x1_displacement(undesired_datapt, closest_boundedpt, deltas=D)  # Move point
-    plt.scatter(undesired_datapt[0][0], undesired_datapt[0][1], c = 'r')  # Plot undesired point
-    plt.text(undesired_datapt[0][0]+0.002, undesired_datapt[0][1]+0.002, 'NH')  # Label 'NH' (e.g., Non-Healthy)
-    plt.scatter(optimal_datapt[0][0], optimal_datapt[0][1], c = 'r')  # Plot optimal point
-    plt.text(optimal_datapt[0][0]+0.002, optimal_datapt[0][1]+0.002, 'NH')  # Label 'NH' (note: duplicate label, perhaps typo for 'H')
-    plt.plot([undesired_datapt[0][0], optimal_datapt[0][0]], [undesired_datapt[0][1],optimal_datapt[0][1]], linestyle='--')  # Dashed line between points
-    return optimal_datapt
+    
+    if plot:
+        plt.scatter(undesired_datapt[0][0], undesired_datapt[0][1], c = 'r')  # Plot undesired point
+        plt.text(undesired_datapt[0][0]+0.002, undesired_datapt[0][1]+0.002, 'NH')  # Label 'NH' (e.g., Non-Healthy)
+        plt.scatter(optimal_datapt[0][0], optimal_datapt[0][1], c = 'r')  # Plot optimal point
+        plt.text(optimal_datapt[0][0]+0.002, optimal_datapt[0][1]+0.002, 'NH')  # Label 'NH' (note: duplicate label, perhaps typo for 'H')
+        plt.plot([undesired_datapt[0][0], optimal_datapt[0][0]], [undesired_datapt[0][1],optimal_datapt[0][1]], linestyle='--')  # Dashed line between points
+    categorical_features = [col for col in inv_col_map.keys()]
+    final_optimal_datapt = [] 
+
+    for col in X_train.columns:
+        if col in categorical_features: 
+            idx = optimal_datapt[0,X_train.columns.get_loc(col)].astype(int)
+            final_optimal_datapt.append(inv_col_map[col][idx])
+        else: 
+            final_optimal_datapt.append(optimal_datapt[0,X_train.columns.get_loc(col)])
+    return final_optimal_datapt

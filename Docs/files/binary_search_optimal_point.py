@@ -2,17 +2,13 @@ import pandas as pd
 from sklearn import svm
 import matplotlib.pyplot as plt
 import numpy as np
-import warnings
-import random 
-from scipy.interpolate import RBFInterpolator
-from scipy.spatial import KDTree
-import numba 
 
-from common_functions import closest_point, closest_border_point, euclidean_distance, move_from_A_to_B_with_x1_displacement 
-from common_functions import get_multi_dim_border_points, det_constraints, constraint_bounds, real_world_constraints
+from .common_functions import closest_point, closest_border_point, move_from_A_to_B_with_x1_displacement 
+from .common_functions import get_multi_dim_border_points, det_constraints, constraint_bounds, real_world_constraints
+from .common_functions import balance_dataset, check_class_balance, convert_columns
 
 
-def alpha_binary_search(model, point, opp_point, point_target, opp_target, epsilon=0.01):
+def alpha_binary_search(model, point, opp_point, point_target, epsilon=1e-3, max_iter=100):
     """
     Perform a binary search along the line segment between two points to find the
     approximate alpha value where the model's prediction changes from one target
@@ -41,14 +37,11 @@ def alpha_binary_search(model, point, opp_point, point_target, opp_target, epsil
         the search and compare against the model's prediction at interpolated points.
         Should match the model's output format (e.g., 0 or 1 for binary classes).
     
-    opp_target : int or str
-        The expected prediction label for the `opp_point`. This should be different
-        from `point_target` and is used to detect when the prediction flips.
-    
-    epsilon : float, optional
-        The tolerance for convergence in the binary search. The loop stops when the
-        difference between the search bounds is less than this value. Default is 0.01.
-        Smaller values yield more precise alphas but may increase computation time.
+    epsilon: float 
+        The difference between starting and ending alpha values should be less than epsilon defined in the arguments of the call.
+
+    max_iter : int 
+        The number of iterations needed to find an appropriate alpha. This is the limit for the number of iterations for binary search.
 
     Returns
     -------
@@ -72,32 +65,24 @@ def alpha_binary_search(model, point, opp_point, point_target, opp_target, epsil
       without a true boundary.
     - Usage: Typically called within a loop over pairs of points from different
       classes to sample multiple boundary points.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> from sklearn.linear_model import LogisticRegression
-    >>> model = LogisticRegression().fit(np.array([[0], [1]]), [0, 1])
-    >>> point = np.array([0.0])
-    >>> opp_point = np.array([1.0])
-    >>> alpha = alpha_binary_search(model, point, opp_point, 0, 1, epsilon=0.001)
-    >>> print(alpha)  # Approximately 0.5 for a linear boundary at 0.5
-    0.5
     """
-    start, end = 0, 1  # Initialize search bounds: 0 at 'point', 1 at 'opp_point'
-    while abs(end - start) >= epsilon:  # Loop until convergence within epsilon
-        alpha = (start + end) / 2  # Midpoint alpha (float division ensured)
-        # Interpolate: weighted average between point and opp_point
-        temp_candidate = (1 - alpha) * point + alpha * opp_point
-        # Predict on the interpolated point (assumes model.predict returns array)
-        temp_target = model.predict([temp_candidate])[0]
-        if temp_target == point_target: 
-            start = alpha  # Move start bound if prediction matches point's target
-            point_target = temp_target  # Update target (though often redundant)
-        elif temp_target == opp_target: 
-            end = alpha  # Move end bound if prediction matches opp's target
-            opp_target = temp_target  # Update target (though often redundant)
-    return (start + end) / 2  # Return midpoint as approximate transition alpha
+    start, end = 0, 1  
+
+    for j in range(max_iter): 
+
+        mid = (start + end) / 2 
+        mid_point = (1 - mid) * point + mid * opp_point 
+        pred = model.predict([mid_point])[0]
+
+        if pred == point_target: 
+            start = mid 
+        else: 
+            end = mid 
+        
+        if abs(start - end) < epsilon: 
+            break 
+    
+    return (start + end) / 2
 
 
 def find_decision_boundary(model, X, y, epsilon=1e-3, threshold=10000):
@@ -169,18 +154,13 @@ def find_decision_boundary(model, X, y, epsilon=1e-3, threshold=10000):
     (2, 2)
     """
     # Detect categorical features (assumed as int columns)
-    categorical_features = X.select_dtypes(include=int).columns.tolist()
-    cat_indices = [X.columns.get_loc(col) for col in categorical_features]
-
-    # Create a boolean vector (1 for continuous, 0 for categorical; currently unused)
-    bool_vec = [1] * (len(X.columns)) 
-    for i in range(len(cat_indices)): 
-        bool_vec[cat_indices[i]] = 0 
+    categorical_features = X.select_dtypes(include='int32').columns.tolist()
 
     X_np = X.to_numpy()  # Convert features to NumPy for efficient ops
     y_np = y.to_numpy() if not isinstance(y, np.ndarray) else y  # Ensure y is NumPy
     boundary_points = []  # List to collect boundary point arrays
     unique_labels = np.unique(y_np)  # Get unique class labels
+
     if len(unique_labels) != 2:
         raise ValueError("Only supports binary classification.")
     
@@ -190,39 +170,39 @@ def find_decision_boundary(model, X, y, epsilon=1e-3, threshold=10000):
     cluster_a = X_np[y_np == label_a]
     cluster_b = X_np[y_np == label_b]
 
-    total_N = 0  # Counter for generated points
-    for i in range(cluster_a.shape[0]):
-        point = cluster_a[i]
-        pt_pred = model.predict([point])  # Predict on point from cluster A
+    # After creating cluster_a and cluster_b
+    preds_a = model.predict(cluster_a)
+    preds_b = model.predict(cluster_b)
 
-        for j in range(cluster_b.shape[0]): 
-            match_point = cluster_b[j]
-            match_pt_pred = model.predict([match_point])  # Predict on point from B
-            # Check if model correctly classifies both (ensures opposite sides)
-            if pt_pred.item() == label_a and match_pt_pred.item() == label_b: 
-                # Find alpha where prediction flips
-                alpha = alpha_binary_search(model, point, match_point, label_a, label_b, epsilon=epsilon)
-                # Compute boundary point via interpolation
-                boundary = (1 - alpha) * point + alpha * match_point
-                boundary_points.append(boundary)
+    if isinstance(preds_a, np.ndarray) and len(preds_a.shape) > 1: 
+        preds_a = np.argmax(preds_a, axis=1) 
+        preds_b = np.argmax(preds_b, axis=1)
 
-                total_N += 1
-                if total_N >= threshold:  # Early stop inner loop
-                    break
-        if total_N >= threshold:  # Early stop outer loop
-            break
-    
+    correct_a = cluster_a[preds_a == label_a]
+    correct_b = cluster_b[preds_b == label_b]
+
+    num_pairs = min(threshold, correct_a.shape[0] * correct_b.shape[0])  # Avoid overflow
+    a_indices = np.random.choice(correct_a.shape[0], num_pairs, replace=True)
+    b_indices = np.random.choice(correct_b.shape[0], num_pairs, replace=True)
+
+    boundary_points = []
+    for idx in range(num_pairs):
+        point = correct_a[a_indices[idx]]
+        match_point = correct_b[b_indices[idx]]
+        alpha = alpha_binary_search(model, point, match_point, label_a, epsilon=epsilon)
+        boundary = (1 - alpha) * point + alpha * match_point
+        boundary_points.append(boundary)
+
     # Convert list to DataFrame with original columns
     boundary_pts = pd.DataFrame(data=boundary_points, columns=X.columns)
-
+    
     # Round categoricals to int for discrete values
     for col in categorical_features: 
         boundary_pts[col] = boundary_pts[col].astype(int)
 
     return boundary_pts
 
-
-def optimal_point(dataset, model, desired_class, original_class, undesired_coords, threshold=10000, point_epsilon=0.1, epsilon=0.01, constraints=[], deltas=[]): 
+def optimal_point(dataset, model, desired_class, original_class, chosen_row=-1, threshold=10000, point_epsilon=0.1, epsilon=0.01, constraints=[], deltas=[], plot=False): 
     """
     Finds the closest point to the decision boundary from an undesired point,
     optionally constrained by real-world conditions.
@@ -245,8 +225,8 @@ def optimal_point(dataset, model, desired_class, original_class, undesired_coord
     original_class : int or label
         The actual class label of the undesired point.
     
-    undesired_coords : list or array
-        The coordinates of the original ("unhealthy") point.
+    chosen_row :  int 
+        The selected row of the dataset to find the counterfactual explanation for
     
     threshold : int, optional
         Max number of decision boundary points to sample. Default is 10000.
@@ -294,16 +274,31 @@ def optimal_point(dataset, model, desired_class, original_class, undesired_coord
     >>> optimal = optimal_point(dataset, model, desired_class=1, original_class=0, undesired_coords=undesired_coords)
     >>> print(optimal)  # e.g., array([[1.5, 0.5]])
     """
-    # -------------------------------
-    # STEP 1: Train the model
-    # -------------------------------
-    X_train = dataset.iloc[:, 0:-1]  # Extract features from dataset
-    y_train = dataset.iloc[:, -1]  # Extract labels from dataset
-    n_features = X_train.shape[1]  # Get number of features
 
-    print("fitting model...")
-    model.fit(X_train, y_train)  # Train the model on the dataset
-    print("model finished.")
+    # Convert categorical columns if needed (before balancing)
+    inv_col_map = convert_columns(dataset)
+
+    # Extract features and labels before balancing
+    X_orig = dataset.iloc[:, :-1]
+    
+    # Save the original row's feature values
+    undesired_coords = X_orig.iloc[chosen_row, :].copy()
+
+    # Balance the dataset
+    dataset = balance_dataset(df=dataset, target=dataset.columns[-1])
+    
+    if not check_class_balance(dataset, target=dataset.columns[-1]):
+        raise RuntimeError("Failed to balance classes for binary classification")
+    
+    sampled_dataset = dataset.sample(n=min(dataset.shape[0], 10000))
+
+    # Extract new training features/labels after balancing
+    X_train = sampled_dataset.iloc[:, :-1]
+    y_train = sampled_dataset.iloc[:, -1]
+    # Train the model
+    print("Fitting model...")
+    model.fit(X_train, y_train)
+    print("Model training complete.")
 
     # -------------------------------
     # STEP 2: Find decision boundary
@@ -324,7 +319,7 @@ def optimal_point(dataset, model, desired_class, original_class, undesired_coord
                                       undesired_coords=undesired_coords,
                                       constraints=constraints)
     contours = np.unique(contours.to_numpy(), axis=0)  # Remove duplicates from constrained points
-    undesired_datapt = np.reshape(np.array(list(undesired_coords)), (1, -1))  # Reshape undesired point to 2D array
+    undesired_datapt = np.reshape(undesired_coords, (1, -1))  # Reshape undesired point to 2D array
 
     # -------------------------------
     # STEP 4: Find closest point on constrained boundary
@@ -332,8 +327,8 @@ def optimal_point(dataset, model, desired_class, original_class, undesired_coord
     print("Finding the closest point from the contour line to the point...")
     optimal_datapt = closest_point(undesired_datapt, contour=contours)
     print("Finding the closest point from the contour line to the point.")  # Note: Duplicate print, possibly a typo
-    #plt.plot(contours[:,0], contours[:,1], lw=0.5, color='red')  # Commented: Plot contours for visualization
-
+    if plot:
+        plt.plot(contours[:,0], contours[:,1], lw=0.5, color='red')  # Commented: Plot contours for visualization
 
     # -------------------------------
     # STEP 5: Post-process based on class flip requirement
@@ -360,7 +355,8 @@ def optimal_point(dataset, model, desired_class, original_class, undesired_coord
                                                               step=0.05)
             np_bounded_contour = np.array(bounded_contour_pts)  # Convert to NumPy array
             x_values, y_values = np_bounded_contour[:, 0], np_bounded_contour[:, 1]  # Extract x/y for plotting
-            plt.scatter(x_values, y_values, color='blue', marker='o')  # Plot bounded points
+            if plot:
+                plt.scatter(x_values, y_values, marker='o')  # Plot bounded points
             closest_boundedpt = closest_border_point(bounded_contour_pts, contour=contours)  # Find closest on border
 
         else:
@@ -372,9 +368,21 @@ def optimal_point(dataset, model, desired_class, original_class, undesired_coord
         optimal_datapt = move_from_A_to_B_with_x1_displacement(undesired_datapt, closest_boundedpt, deltas=D)  # Move point
     
     # Plot original and optimal points with connecting line
-    plt.scatter(undesired_datapt[0][0], undesired_datapt[0][1], c = 'r')  # Plot undesired point
-    plt.text(undesired_datapt[0][0]+0.002, undesired_datapt[0][1]+0.002, 'NH')  # Label 'NH' (e.g., Non-Healthy)
-    plt.scatter(optimal_datapt[0][0], optimal_datapt[0][1], c = 'g')  # Plot optimal point (changed to green for distinction)
-    plt.text(optimal_datapt[0][0]+0.002, optimal_datapt[0][1]+0.002, 'H')  # Label 'H' (e.g., Healthy; adjusted from duplicate 'NH')
-    plt.plot([undesired_datapt[0][0], optimal_datapt[0][0]], [undesired_datapt[0][1],optimal_datapt[0][1]], linestyle='--')  # Dashed line between points
-    return optimal_datapt
+    if plot:
+        plt.scatter(undesired_datapt[0][0], undesired_datapt[0][1], c = 'r')  # Plot undesired point
+        plt.text(undesired_datapt[0][0]+0.002, undesired_datapt[0][1]+0.002, 'NH')  # Label 'NH' (e.g., Non-Healthy)
+        plt.scatter(optimal_datapt[0][0], optimal_datapt[0][1], c = 'g')  # Plot optimal point (changed to green for distinction)
+        plt.text(optimal_datapt[0][0]+0.002, optimal_datapt[0][1]+0.002, 'NH')  # Label 'H' (e.g., Healthy; adjusted from duplicate 'NH')
+        plt.plot([undesired_datapt[0][0], optimal_datapt[0][0]], [undesired_datapt[0][1],optimal_datapt[0][1]], linestyle='--')  # Dashed line between points
+    
+    categorical_features = [col for col in inv_col_map.keys()]
+    final_optimal_datapt = [] 
+
+    for col in X_train.columns:
+        if col in categorical_features: 
+            idx = optimal_datapt[0,X_train.columns.get_loc(col)].astype(int)
+            final_optimal_datapt.append(inv_col_map[col][idx])
+        else: 
+            final_optimal_datapt.append(optimal_datapt[0,X_train.columns.get_loc(col)])
+
+    return final_optimal_datapt

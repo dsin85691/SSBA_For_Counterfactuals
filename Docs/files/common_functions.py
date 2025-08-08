@@ -1,12 +1,10 @@
 import pandas as pd
-from sklearn import svm
 import matplotlib.pyplot as plt
 import numpy as np
 import warnings
 import random 
-from scipy.interpolate import RBFInterpolator
 from scipy.spatial import KDTree
-import numba 
+from sklearn.utils import resample
 
 random.seed(0)
 warnings.filterwarnings('ignore', category=UserWarning)
@@ -134,14 +132,6 @@ def move_from_A_to_B_with_x1_displacement(A, B, deltas, epsilon=1e-3):
     print(D)
     
     return P
-
-# Example usage
-A = [1, 2, 3]  # Starting point in 3D space
-B = [4, 5, 6]  # Target point in 3D space
-delta_x1 = 1.5  # Desired movement in x1 dimension
-
-P = move_from_A_to_B_with_x1_displacement(A, B, delta_x1)
-print("New point P with desired x1 movement:", P)
 
 
 def get_multi_dim_border_points(center, extents, step=0.1):
@@ -392,3 +382,53 @@ def real_world_constraints(points, undesired_coords, constraints):
         points = select_pts  # Update with filtered
     
     return points
+
+def convert_columns(df): 
+    inv_col_map = {} 
+
+    for col in df.columns: 
+        any_string = df[col].apply(lambda x: isinstance(x, str)).any()
+
+        if not any_string: 
+            df[col] = df[col].astype('float64')
+        else: 
+            inv_col_map[col] = {}
+            unique_vals = np.unique(df[col])
+
+            for i, val in enumerate(unique_vals): 
+                inv_col_map[col][i] = val 
+                df.loc[df[col] == val, col] = i
+
+            df[col] = df[col].astype('int32')
+
+    return inv_col_map
+
+def balance_dataset(df, target): 
+
+    unique_vals = df[target].unique()
+    max_samples = df[target].value_counts().max()
+
+    balanced_dataset = pd.DataFrame(data=[], columns=df.columns)
+
+    for val in unique_vals: 
+        class_subset = df[df[target] == val]
+        if class_subset.shape[0] != max_samples: 
+            upsampled_class = resample(class_subset, 
+                                    replace=True, 
+                                    n_samples=max_samples, 
+                                    random_state=42)  # for reproducibility
+        else: 
+            upsampled_class = class_subset
+        balanced_dataset = pd.concat([balanced_dataset, upsampled_class], ignore_index=True)
+
+    balanced_dataset[target] = balanced_dataset[target].astype('int32')
+    return balanced_dataset
+
+def check_class_balance(df, target):
+    class_counts = df[target].value_counts()
+    print("Class counts:\n", class_counts)
+    
+    if class_counts.nunique() == 1:
+        return True 
+    else:
+        return False
