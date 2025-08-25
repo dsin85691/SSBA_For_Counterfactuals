@@ -1,5 +1,5 @@
 import pandas as pd
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import numpy as np
 import warnings
 import random 
@@ -31,16 +31,15 @@ def closest_point(point, contour):
     # Build a KD-tree for fast nearest neighbor search over the contour points
     tree = KDTree(contour)
 
-    # Find the index of the contour point closest to the input point
-    closest_index = tree.query(point)[1]
+    # Query nearest neighbor (k=1)
+    dist, ind = tree.query([point], k=1)
 
-    # If the result is an array (e.g., due to batch input), extract the scalar index
-    if not isinstance(closest_index, np.int64): 
-        closest_index = closest_index[0]
+    # Extract scalar index
+    closest_index = int(ind[0][0])
 
-    # Retrieve the actual closest point using the index
+    # Get closest point
     closest_point = contour[closest_index]
-
+    
     return closest_point
 
 def closest_border_point(border_points, contour): 
@@ -212,7 +211,7 @@ def get_multi_dim_border_points(center, extents, step=0.1):
     
     return list(points)
 
-def det_constraints(datapt, deltas): 
+def det_constraints(datapt, vars, delta): 
     """
     Determine the effective constraints based on deltas, scaling them relative to the data point.
 
@@ -221,8 +220,8 @@ def det_constraints(datapt, deltas):
     datapt : list or numpy.ndarray
         The data point (feature vector) to scale constraints against.
     
-    deltas : list
-        List of delta values for each feature. If float/int, it's treated as a percentage
+    deltas : int
+        A percentage in terms of the datapoint feature value. If float/int, it's treated as a percentage
         (e.g., 10 means 10% of datapt[i]); otherwise ignored.
 
     Returns
@@ -250,12 +249,15 @@ def det_constraints(datapt, deltas):
     >>> print(constraints, len_constr)  # [10.0, -1], 1
     [10.0, -1] 1
     """
-    constraints = [-1] * len(deltas)  # Initialize with -1 (inactive)
+    constraints = [-1] * datapt.shape[0]  # Initialize with -1 (inactive)
     len_constr = 0  # Counter for active constraints
-    for i in range(len(deltas)): 
-        if type(deltas[i]) == float or type(deltas[i]) == int:  # Check if numeric
-            constraints[i] = (deltas[i]/100)*datapt[i]  # Scale as percentage of datapt
+    for i in range(len(datapt)): 
+        if i in vars:  # Check if numeric
+            constraints[i] = (delta/100)*datapt[i]  # Scale as percentage of datapt
             len_constr+=1  # Increment counter
+        else: 
+            constraints[i] = 0 
+            len_constr+=1 
     return constraints, len_constr
 
 def constraint_bounds(contours, datapt, constraints): 
@@ -380,7 +382,8 @@ def real_world_constraints(points, undesired_coords, constraints):
             select_pts = points.loc[points[constraint[0]] < undesired_coords[points.columns.get_loc(constraint[0])], :]
 
         points = select_pts  # Update with filtered
-    
+        if points.shape[0] == 0: 
+            return None
     return points
 
 def convert_columns(df): 

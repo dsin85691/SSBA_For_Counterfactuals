@@ -1,6 +1,9 @@
+import cuml.accel
+cuml.accel.install()
+
 import pandas as pd
 from sklearn import svm
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import numpy as np
 import warnings
 import random 
@@ -147,6 +150,9 @@ def compute_decision_boundary_points_all_features(model, X, resolution=100, epsi
     Z = model.predict(grid)
     # Find points near the decision boundary
     boundary_points = prediction(Z, grid, epsilon)
+
+    if len(boundary_points) == 0: 
+         raise Exception("No Boundary Points Found. The DataFrame is empty. Please try to change the parameters.")
  
     return pd.DataFrame(np.unique(boundary_points,axis=0), columns=X.columns)  # Unique points as DataFrame
 
@@ -266,6 +272,9 @@ def optimal_point(dataset, model, desired_class, original_class, chosen_row=-1, 
     except MemoryError: 
         print(f"Not enough memory to generate a grid with {resolution}^{n_features} number of points")
         return 
+    
+    print("Number of boundary points")
+    print(boundary_points.shape)
 
     if chosen_row == -1: 
         raise RuntimeError("You need to choose a specific row of the dataset to run this.")
@@ -281,8 +290,8 @@ def optimal_point(dataset, model, desired_class, original_class, chosen_row=-1, 
     print("Finding the closest point from the contour line to the point...")
     optimal_datapt = closest_point(undesired_datapt, contour=contours)
     print("Finding the closest point from the contour line to the point.")  # Note: Duplicate print, possibly a typo
-    if plot:
-        plt.plot(contours[:,0], contours[:,1], lw=0.5, color='red')  # Plot contours (assumes 2D)
+    # if plot:
+    #     plt.plot(contours[:,0], contours[:,1], lw=0.5, color='red')  # Plot contours (assumes 2D)
 
     if desired_class != original_class: 
         D = optimal_datapt - undesired_datapt  # Direction vector to boundary
@@ -300,8 +309,8 @@ def optimal_point(dataset, model, desired_class, original_class, chosen_row=-1, 
             bounded_contour_pts = get_multi_dim_border_points(center=undesired_datapt[0], extents=deltas, step=0.05)
             np_bounded_contour = np.array(bounded_contour_pts)  # To NumPy
             x_values, y_values = np_bounded_contour[:,0], np_bounded_contour[:, 1]  # Extract for plotting (assumes 2D)
-            if plot:
-                plt.scatter(x_values, y_values, marker='o')  # Plot bounded points
+            # if plot:
+            #     plt.scatter(x_values, y_values, marker='o')  # Plot bounded points
             closest_boundedpt = closest_border_point(bounded_contour_pts, contour=contours)  # Find closest on border (constraints in all dimensions)
         else: 
             # Generate bounded contour points for partial constraints 
@@ -311,12 +320,12 @@ def optimal_point(dataset, model, desired_class, original_class, chosen_row=-1, 
         D = closest_boundedpt - undesired_datapt  # Direction vector
         optimal_datapt = move_from_A_to_B_with_x1_displacement(undesired_datapt, closest_boundedpt, deltas=D)  # Move point
     
-    if plot:
-        plt.scatter(undesired_datapt[0][0], undesired_datapt[0][1], c = 'r')  # Plot undesired point
-        plt.text(undesired_datapt[0][0]+0.002, undesired_datapt[0][1]+0.002, 'NH')  # Label 'NH' (e.g., Non-Healthy)
-        plt.scatter(optimal_datapt[0][0], optimal_datapt[0][1], c = 'r')  # Plot optimal point
-        plt.text(optimal_datapt[0][0]+0.002, optimal_datapt[0][1]+0.002, 'NH')  # Label 'NH' (note: duplicate label, perhaps typo for 'H')
-        plt.plot([undesired_datapt[0][0], optimal_datapt[0][0]], [undesired_datapt[0][1],optimal_datapt[0][1]], linestyle='--')  # Dashed line between points
+    # if plot:
+    #     plt.scatter(undesired_datapt[0][0], undesired_datapt[0][1], c = 'r')  # Plot undesired point
+    #     plt.text(undesired_datapt[0][0]+0.002, undesired_datapt[0][1]+0.002, 'NH')  # Label 'NH' (e.g., Non-Healthy)
+    #     plt.scatter(optimal_datapt[0][0], optimal_datapt[0][1], c = 'r')  # Plot optimal point
+    #     plt.text(optimal_datapt[0][0]+0.002, optimal_datapt[0][1]+0.002, 'NH')  # Label 'NH' (note: duplicate label, perhaps typo for 'H')
+    #     plt.plot([undesired_datapt[0][0], optimal_datapt[0][0]], [undesired_datapt[0][1],optimal_datapt[0][1]], linestyle='--')  # Dashed line between points
     categorical_features = [col for col in inv_col_map.keys()]
     final_optimal_datapt = [] 
 
