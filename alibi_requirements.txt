@@ -1,0 +1,4 @@
+ipykernel 
+tensorflow==2.14.1
+alibi
+dice_ml
