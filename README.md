@@ -17,9 +17,34 @@ As for our Juypter Notebooks, we have one documentation notebook ```documentatio
 
 Link to the Paper: https://drive.google.com/file/d/1_V42KYoFrXqetrI7xDaXaS_0HrWQG3CD/view?usp=sharing
 
-# Required Python Versions # 
+# How to Set up Environment and Run Files # 
 
-Please check the ```requirements.txt``` for the python versions required for this repository. 
+1. Set up GPU using conda, linux virtual environments, Google colab enviroment, etc.
+2. Run Jupyter Notebook within VSCode, Google Colab.
+3. Make sure to run the appropriate environments for those files.
+
+
+# Setting up the GPU Environment # 
+
+Constructing the GPU environment can be done at the link: https://docs.rapids.ai/install/?_gl=1*1km83yv*_ga*MTcxOTEzMjc1NC4xNzU1MTA2Njc1*_ga_RKXFW6CM42*czE3NTYwODA3NjgkbzckZzEkdDE3NTYwODExNDgkajYwJGwwJGgw. To set up RAPIDS, you would need to ensure that you have cuda installed or a Nvidia GPU preinstalled on your computer prior to installation. Make sure to choose "specific packages," and choose cuDF, cuML, and JupyterLab for comparable results. 
+
+So, a command like this (lets you set up with conda): 
+
+```conda create -n gpu_env -c rapidsai -c conda-forge -c nvidia cudf=25.08 cuml=25.08 python=3.12 'cuda-version>=12.0,<=12.9'  jupyterlab```
+
+Once you have completed this, you should run the ```gpu_requirements.txt``` that includes the other files needed. This file contains run the notebooks that are not Alibi-specific (one notebook). 
+
+# Setting up Alibi-specific environment # 
+
+To run the alibi Jupyter Notebook, you need to run an environment specific to Alibi which we provide. Create a new environment and run the ```alibi_requirements.txt``` file. This will let you run the alibi comparison notebook under ```Docs/tests``` folder.
+
+
+
+
+
+# Errors # 
+
+If you run into an error regarding SSL certificates, you must update your linux environment, WSL environment, etc. to the latest version of Ubuntu, Debian, etc. to ensure that you can install and run ```dice_ml``` files.
 
 
 # Acknowledgement # 
