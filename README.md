@@ -57,7 +57,7 @@ If you run into an error regarding SSL certificates, you must update your linux 
 
 # Acknowledgement # 
 
-Professor Milad Toutouchian supported my work during the duration of this project across 10 months from November 2024 to August 2025. His support has helped the initiation and progression of this project to this end. 
+Professor Milad Toutouchian supported my work during the duration of this project across 10-11 months from November 2024 to September 2025. His support has helped the initiation and progression of this project to this end. 
 
 
 
