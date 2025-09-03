@@ -12,7 +12,16 @@ Note: There are two different $\epsilon$ parameters that each control a separate
 
 This repository contains all of the notebooks used demonstrating the method as well as packaging the relevant files under the ```docs/files``` directory. 
 
-As for our Juypter Notebooks, we have one documentation notebook ```documentation_notebook.ipynb``` that documents the functions and their relevant parameters, return types, and values. Under our ```docs/tests``` folder, we have several notebooks that not only tests the method, but we have a notebook where we compare the computational costs of the grid-based approach with our binary search method as described in the paper. Our original files folder consists of all the files provided by my supervisor, Professor Milad, throughout this research project. 
+As for our Juypter Notebooks, we have one documentation notebook ```documentation_notebook.ipynb``` that documents the functions and their relevant parameters, return types, and values. Under our ```docs/tests``` folder, we have several notebooks that not only tests the method, but we have a notebook where we compare the computational costs of the grid-based approach with our binary search method as described in the paper. 
+
+Recapitulation of Notebooks under ```docs/tests```: 
+1. ```dice_ml_comparison_gpu.ipynb``` is the notebook that we used for the comparison of our method against DiCE's model-agnostic approaches as shown in the paper.
+2. ```alibi_comparison.ipynb``` is the notebook that we used for the comparison of our method against Alibi's gradient approach.
+3. ```computation_testing_notebook_gpu.ipynb``` is the notebook that we used for the comparison of our method with the grid-based approach in terms of time complexity. We provide time complexity results for both CPU/GPU.
+4. ```binary_search_tests.ipynb``` is a notebook that we used for testing the generation of decision boundary points for a logistic regression model. Since we know that boundary points must have equal probability between both classes for logistic regression models, we check that the $50\%-50\%$ probabilities between each class is maintained for varying number of features for a given synthetic dataset.
+5. ```ablation_study_point_epsilon.ipynb``` and ```ablation_study_resolution.ipynb``` are two files that we record results for our ablation studies as shown in the paper under ablation studies section.
+
+All original files used in the beginning of the research project are shown under ```docs/original_files``` folder. 
 
 Link to the Paper: https://drive.google.com/file/d/1_V42KYoFrXqetrI7xDaXaS_0HrWQG3CD/view?usp=sharing
 
