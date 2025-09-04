@@ -23,7 +23,7 @@ Recapitulation of Notebooks under ```docs/tests```:
 
 All original files used in the beginning of the research project are shown under ```docs/original_files``` folder. 
 
-Link to the Paper: https://drive.google.com/file/d/1_V42KYoFrXqetrI7xDaXaS_0HrWQG3CD/view?usp=sharing](https://drive.google.com/file/d/1S9wpUus5fHDbN-h-ttmbur5sVQl1ASoA/view?usp=drive_link
+Link to the Paper: [https://drive.google.com/file/d/1_V42KYoFrXqetrI7xDaXaS_0HrWQG3CD/view?usp=sharing](https://drive.google.com/file/d/1S9wpUus5fHDbN-h-ttmbur5sVQl1ASoA/view?usp=drive_link](https://drive.google.com/file/d/14_MB8i8rU60r-kF9WZfVOtF3g0PHd1n-/view?usp=drive_link)
 
 # How to Set up Environment and Run Files # 
 
