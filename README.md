@@ -27,9 +27,9 @@ Link to the Paper: https://drive.google.com/file/d/14_MB8i8rU60r-kF9WZfVOtF3g0PH
 
 # How to Set up Environment and Run Files # 
 
-1. Set up a GPU using conda, Linux virtual environments, Google Colab environment, etc.
+1. Set up a environment using conda, Linux virtual environments, Google Colab environment, etc.
 2. Run Jupyter Notebook within VSCode, Google Colab.
-3. Make sure to run the appropriate environments for those files.
+3. Make sure to run the appropriate environments for those files. We recommend only running the GPU environment for the files with the label gpu in the name such as ```documentation_notebook_gpu.ipynb``` or ```dice_ml_comparison_gpu.ipynb.``` We can also run the GPU environment for the ablation studies. 
 
 
 # Setting up the GPU Environment # 
@@ -46,8 +46,9 @@ Once you have completed this, you should run the ```gpu_requirements.txt``` that
 
 To run the AlibiAlibi Jupyter Notebook, you need to run an environment specific to Alibi, which we provide. Create a new environment and run the ```alibi_requirements.txt``` file. This will let you run the alibi comparison notebook under ```Docs/tests``` folder.
 
+# Setting up the CPU environment # 
 
-
+Make sure to run the ```cpu_environment.txt``` file after generating your environment. 
 
 
 # Errors # 
