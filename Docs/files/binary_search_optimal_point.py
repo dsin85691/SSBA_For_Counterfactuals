@@ -1,6 +1,7 @@
 import pandas as pd
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.patches as mpatches
 
 from .common_functions import closest_point, closest_border_point, move_from_A_to_B_with_x1_displacement 
 from .common_functions import get_multi_dim_border_points, det_constraints, constraint_bounds, real_world_constraints
@@ -220,10 +221,6 @@ def find_decision_boundary(model, X, y, epsilon=1e-3, threshold=10000):
     # Convert list to DataFrame with original columns
     boundary_pts = pd.DataFrame(data=boundary_points, columns=X.columns)
     
-    # Round categoricals to int for discrete values
-    for col in categorical_features: 
-        boundary_pts[col] = boundary_pts[col].astype(int)
-
     return boundary_pts
 
 def multi_decision_boundary(model, X, y, epsilon=1e-3, threshold=10000, batch=10000): 
@@ -503,13 +500,25 @@ def optimal_point(dataset, model, desired_class, original_class, chosen_row=-1, 
         optimal_datapt = move_from_A_to_B_with_x1_displacement(undesired_datapt, closest_boundedpt, deltas=D)  # Move point
     
     # Plot original and optimal points with connecting line
-    # if plot:
-    #     plt.scatter(undesired_datapt[0][0], undesired_datapt[0][1], c = 'r')  # Plot undesired point
-    #     plt.text(undesired_datapt[0][0]+0.002, undesired_datapt[0][1]+0.002, 'NH')  # Label 'NH' (e.g., Non-Healthy)
-    #     plt.scatter(optimal_datapt[0][0], optimal_datapt[0][1], c = 'g')  # Plot optimal point (changed to green for distinction)
-    #     plt.text(optimal_datapt[0][0]+0.002, optimal_datapt[0][1]+0.002, 'NH')  # Label 'H' (e.g., Healthy; adjusted from duplicate 'NH')
-    #     plt.plot([undesired_datapt[0][0], optimal_datapt[0][0]], [undesired_datapt[0][1],optimal_datapt[0][1]], linestyle='--')  # Dashed line between points
-    
+    if plot:
+        params = {'mathtext.default': 'regular' }
+        plt.rcParams.update(params)
+        plt.scatter(contours[:,0], contours[:,1], lw=0.5, color='purple', label="Decision Boundary Points")  # Commented: Plot contours for visualization
+        plt.scatter(undesired_datapt[0][0], undesired_datapt[0][1], c = 'r', label="NH: Not Healthy")  # Plot undesired point
+        plt.text(undesired_datapt[0][0]+0.002, undesired_datapt[0][1]+0.002, 'NH')  # Label 'NH' (e.g., Non-Healthy)
+        plt.scatter(optimal_datapt[0][0], optimal_datapt[0][1], c = 'g', label="H: Healthy")  # Plot optimal point (changed to green for distinction)
+        plt.text(optimal_datapt[0][0]+0.002, optimal_datapt[0][1]+0.002, 'NH')  # Label 'H' (e.g., Healthy; adjusted from duplicate 'NH')
+        plt.plot([undesired_datapt[0][0], optimal_datapt[0][0]], [undesired_datapt[0][1],optimal_datapt[0][1]], linestyle='--')  # Dashed line between points
+        red_patch = mpatches.Patch(color='red', label='Not Healthy')
+        blue_patch = mpatches.Patch(color='blue', label='Healthy')
+        green_patch = mpatches.Patch(color='green', label="Counterfactual")
+        purple_patch = mpatches.Patch(color='purple', label='Decision Boundary Point')
+        plt.legend(loc='lower left', handles=[red_patch, blue_patch, purple_patch, green_patch])
+        plt.xlabel('Feature 1')
+        plt.ylabel('Feature 2')
+        plt.title("Toy Dataset")
+        plt.show()
+
     categorical_features = [col for col in inv_col_map.keys()]
     final_optimal_datapt = [] 
 
