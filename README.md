@@ -60,7 +60,7 @@ You may also submit an issue request for updates/changes.
 
 # Acknowledgement # 
 
-Professor Milad Toutouchian supported my work throughout this project, spanning 10-11 months from November 2024 to September 2025. His support has helped the initiation and progression of this project. 
+Professor Milad Toutounchian (faculty at Drexel) supported my work throughout this project, spanning 10-11 months from November 2024 to September 2025. His support has helped the initiation and progression of this project. 
 
 
 
