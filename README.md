@@ -53,9 +53,11 @@ Make sure to run the ```cpu_environment.txt``` file after generating your enviro
 
 # Errors # 
 
-If you encounter an SSL certificate error, ensure your Linux environment, WSL environment, etc., is updated to the latest version of Ubuntu or Debian to facilitate the successful installation and execution of `dice_ml` files.
+If you encounter an SSL certificate error, ensure your Linux environment, WSL environment, etc., is updated to the latest version of Ubuntu or Debian to facilitate the successful installation and execution of `dice_ml` files. 
 
-You may also submit an issue request for updates/changes.
+You may also submit an issue request for updates/changes. 
+
+Also, if you want to fork a change and add it to the repository, I will review your request and see if I can approve of the changes. 
 
 
 # Acknowledgement # 
