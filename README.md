@@ -42,7 +42,7 @@ Once you have completed this, you should run the ```gpu_requirements.txt``` that
 
 # Setting up Alibi-specific environment # 
 
-To run the AlibiAlibi Jupyter Notebook, you need to run an environment specific to Alibi, which we provide. Create a new environment and run the ```alibi_requirements.txt``` file. This will let you run the alibi comparison notebook under ```Docs/tests``` folder.
+To run the Alibi Jupyter Notebook, you need to run an environment specific to Alibi, which we provide. Create a new environment and run the ```alibi_requirements.txt``` file. This will let you run the alibi comparison notebook under ```Docs/tests``` folder.
 
 # Setting up the CPU environment # 
 
