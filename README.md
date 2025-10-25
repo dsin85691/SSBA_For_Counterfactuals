@@ -23,8 +23,6 @@ Recapitulation of Notebooks under ```docs/tests```:
 
 All original files used at the beginning of the research project are shown under the ```docs/original_files``` folder. 
 
-Link to the Paper: [https://drive.google.com/file/d/14_MB8i8rU60r-kF9WZfVOtF3g0PHd1n-/view?usp=drive_link](https://drive.google.com/file/d/1kaaL2rtYCjuEbYO78JdxAioXkMExwHGm/view?usp=sharing)
-
 # How to Set up Environment and Run Files # 
 
 1. Set up a environment using conda, Linux virtual environments, Google Colab environment, etc.
