@@ -57,6 +57,23 @@ You may also submit an issue request for updates/changes.
 
 Also, if you want to fork a change and add it to the repository, I will review your request and see if I can approve of the changes. 
 
+# BibTeX / Reference # 
+
+If you ever use our work in a corresponding paper, research work, or application, we would highly encourage you to reference us in your work.  
+
+```
+@misc{sin2025geometrical,
+  author       = {Sin, Daniel and Toutounchian, Milad},
+  title        = {Towards Personalized Treatment Plan: Geometrical Model-Agnostic Approach to Counterfactual Explanations},
+  year         = {2025},
+  howpublished = {Manuscript submitted to arXiv},
+  note         = {Preprint},
+}
+```
+
+# Feedback # 
+
+We love any recommendations from the community. If you have ever further questions, we would love to discuss with you on our work post release on arxiv. Please write a issues request, and we can discuss further on any potential comments or rooms for improvement.
 
 # Acknowledgement # 
 
