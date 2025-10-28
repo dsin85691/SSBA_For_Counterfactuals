@@ -14,7 +14,7 @@ As for our Jupyter Notebooks, we have one documentation notebook ```documentatio
 
 # Code Summary # 
 
-Summmary of Notebooks under ```docs/tests```: 
+Summary of Notebooks under ```docs/tests```: 
 1. ```dice_ml_comparison_gpu.ipynb``` is the notebook that we used for the comparison of our method against DiCE's model-agnostic approaches as shown in the paper.
 2. ```alibi_comparison.ipynb``` is the notebook that we used for the comparison of our method against Alibi's gradient approach.
 3. ```computation_testing_notebook_gpu.ipynb``` is the notebook that we used for the comparison of our method with the grid-based approach in terms of time complexity. We provide time complexity results for both CPU/GPU.
