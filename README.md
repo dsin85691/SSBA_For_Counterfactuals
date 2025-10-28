@@ -1,7 +1,5 @@
 # Segmented Sampling for Boundary Approximation (SSBA) for Counterfactual Explanations
 
-
-
 Counterfactual explanations are the backbone of our methodology, and they help us formulate how we approach the generation of counterfactuals alongside the ability to compare similar lines of prior research. As defined by Dandl and Molnar in their book "Interpretable Machine Learning," a counterfactual explanation can be defined as "the smallest change to the feature values that changes the prediction to a predefined output" (Dandl & Molnar, [2019](https://christophm.github.io/interpretable-ml-book/)). Please refer to the book or similar references for further explanation of the definition of a counterfactual explanation.
 
 We describe the methodology in the paper. In summary, the method computes the nearest counterfactual explanation (unconstrained) by way of a method of generating discrete decision boundary points. We generate such decision boundary points with the segmented sampling boundary approximation (SSBA) method, which involves taking a binary search approach for two distinct classes and minimizing the distance between pairs of points from differing classes. Once we have generated a set of discrete boundary points, we then choose the boundary point that is minimally distant from the original instance. We add a small $\epsilon$ value such that the prediction $f(x)$ on that original instance $x$ flips in its predicted class value.
@@ -13,6 +11,8 @@ Note: There are two different $\epsilon$ parameters that each control a separate
 This repository contains all of the notebooks used to demonstrate the method, as well as packaging the relevant files under the ```docs/files``` directory. 
 
 As for our Jupyter Notebooks, we have one documentation notebook ```documentation_notebook.ipynb``` that documents the functions and their relevant parameters, return types, and values. Under our ```docs/tests `` folder, we have several notebooks that not only test the method, but also have a notebook where we compare the computational costs of the grid-based approach with our binary search method as described in the paper. 
+
+# Code Summary # 
 
 Summmary of Notebooks under ```docs/tests```: 
 1. ```dice_ml_comparison_gpu.ipynb``` is the notebook that we used for the comparison of our method against DiCE's model-agnostic approaches as shown in the paper.
@@ -70,6 +70,12 @@ If you ever use our work in a corresponding paper, research work, or application
   note         = {Preprint},
 }
 ```
+
+# Link to Paper # 
+
+Here is a link to the now available publication $\textit{Towards Personalized Treatment Plan: Geometrical Model-Agnostic Approach to Counterfactual Explanations}$. Please check it out, and we are welcome to hear feedback back from the community. 
+
+Link: https://arxiv.org/abs/2510.22911
 
 # Feedback # 
 
