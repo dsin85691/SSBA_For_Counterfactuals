@@ -73,7 +73,7 @@ If you ever use our work in a corresponding paper, research work, or application
 
 # Link to Paper # 
 
-Here is a link to the now available publication $\textit{Towards Personalized Treatment Plan: Geometrical Model-Agnostic Approach to Counterfactual Explanations}$. Please check it out, and we are welcome to hear feedback back from the community. 
+Here is a link to the now available publication $\mathbf{Towards Personalized Treatment Plan: Geometrical Model-Agnostic Approach to Counterfactual Explanations}$. Please check it out, and we are welcome to hear feedback back from the community. 
 
 Link: https://arxiv.org/abs/2510.22911
 
