@@ -14,7 +14,7 @@ This repository contains all of the notebooks used to demonstrate the method, as
 
 As for our Jupyter Notebooks, we have one documentation notebook ```documentation_notebook.ipynb``` that documents the functions and their relevant parameters, return types, and values. Under our ```docs/tests `` folder, we have several notebooks that not only test the method, but also have a notebook where we compare the computational costs of the grid-based approach with our binary search method as described in the paper. 
 
-Recapitulation of Notebooks under ```docs/tests```: 
+Summmary of Notebooks under ```docs/tests```: 
 1. ```dice_ml_comparison_gpu.ipynb``` is the notebook that we used for the comparison of our method against DiCE's model-agnostic approaches as shown in the paper.
 2. ```alibi_comparison.ipynb``` is the notebook that we used for the comparison of our method against Alibi's gradient approach.
 3. ```computation_testing_notebook_gpu.ipynb``` is the notebook that we used for the comparison of our method with the grid-based approach in terms of time complexity. We provide time complexity results for both CPU/GPU.
