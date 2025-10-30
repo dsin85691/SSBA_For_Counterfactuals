@@ -25,11 +25,11 @@ All original files used at the beginning of the research project are shown under
 
 # Getting Started # 
 
-Here is an easy way to get started. Once you have set up your GPU environment through RAPIDS, we recommend running this code for testing purposes. Please also reference ```ablation_study_increasing_n.ipynb``` or ```binary_search_tests.ipynb``` for getting started.
+Here is an easy way to get started. Once you have set up your GPU environment through RAPIDS, we recommend running this code for testing purposes. Please also refer to ```ablation_study_increasing_n.ipynb``` or ```binary_search_tests.ipynb``` for getting started.
 
 
+First, let's import all of the required libraries and tools for running the code.
 ```
-# All required imports
 from sklearn.datasets import make_classification
 from sklearn.linear_model import LogisticRegression
 
@@ -50,10 +50,16 @@ if nb_dir not in sys.path:
 # This imports the decision boundary function generator
 # you can also try: from docs.files.binary_search_optimal_point import multi_decision_boundary
 from files.binary_search_optimal_point import multi_decision_boundary 
+```
 
+Seccond, let's load our GPU environment. Please refer to the docs for the RAPIDS GPU environment. 
+```
 # Runs the RAPIDS GPU environment
 %load_ext cuml.accel
+```
 
+Third, let's preprocess our dataset and construct our model. 
+```
 # Generates a synthetic dataset
 X, y = make_classification(n_samples=10000, n_features=2, n_informative=2,
                            n_redundant=0, n_classes=2, random_state=42)
@@ -63,9 +69,16 @@ y = y.reshape(-1,1)
 df1 = pd.DataFrame(data=np.hstack((X,y)))
 x_train = df1.iloc[:,:-1]
 y_train = df1.iloc[:,-1]
+```
+
+Fourth, let's fit our model to the dataset. 
+```
 # Fits the dataset to the model
 model.fit(x_train,y_train)
+```
 
+Finally, let us generate the boundary points for the given dataset. 
+```
 # Generates the boundary points and outputs the boundary points as a numpy array
 boundary_points = multi_decision_boundary(model, x_train, y_train, threshold=100000, epsilon=1e-4)
 
