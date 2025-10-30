@@ -23,6 +23,60 @@ Summary of Notebooks under ```docs/tests```:
 
 All original files used at the beginning of the research project are shown under the ```docs/original_files``` folder. 
 
+# Getting Started # 
+
+Here is an easy way to get started. Once you have set up your GPU environment through RAPIDS, we recommend running this code for testing purposes. Please also reference ```ablation_study_increasing_n.ipynb``` or ```binary_search_tests.ipynb``` for getting started.
+
+
+```
+# All required imports
+from sklearn.datasets import make_classification
+from sklearn.linear_model import LogisticRegression
+
+import numpy as np
+import pandas as pd
+import warnings
+import random
+
+random.seed(0)
+warnings.filterwarnings('ignore', category=UserWarning)
+
+import os
+import sys
+nb_dir = os.path.split(os.getcwd())[0]
+if nb_dir not in sys.path:
+    sys.path.append(nb_dir)
+
+# This imports the decision boundary function generator
+# you can also try: from docs.files.binary_search_optimal_point import multi_decision_boundary
+from files.binary_search_optimal_point import multi_decision_boundary 
+
+# Runs the RAPIDS GPU environment
+%load_ext cuml.accel
+
+# Generates a synthetic dataset
+X, y = make_classification(n_samples=10000, n_features=2, n_informative=2,
+                           n_redundant=0, n_classes=2, random_state=42)
+# creates a logistic regression classifier
+model = LogisticRegression()
+y = y.reshape(-1,1)
+df1 = pd.DataFrame(data=np.hstack((X,y)))
+x_train = df1.iloc[:,:-1]
+y_train = df1.iloc[:,-1]
+# Fits the dataset to the model
+model.fit(x_train,y_train)
+
+# Generates the boundary points and outputs the boundary points as a numpy array
+boundary_points = multi_decision_boundary(model, x_train, y_train, threshold=100000, epsilon=1e-4)
+
+# Print the decision boundary points and the shape for the boundary points (should be of the form (N, p) where $N$ is the number of data points and $p$ is the number of features)
+print("Decision Boundary Points (All Features):")
+print(boundary_points)
+print(boundary_points.shape)
+```
+
+
+
 # How to Set up Environment and Run Files # 
 
 1. Set up a environment using conda, Linux virtual environments, Google Colab environment, etc.
