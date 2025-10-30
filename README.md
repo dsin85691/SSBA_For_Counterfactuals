@@ -69,7 +69,8 @@ model.fit(x_train,y_train)
 # Generates the boundary points and outputs the boundary points as a numpy array
 boundary_points = multi_decision_boundary(model, x_train, y_train, threshold=100000, epsilon=1e-4)
 
-# Print the decision boundary points and the shape for the boundary points (should be of the form (N, p) where $N$ is the number of data points and $p$ is the number of features)
+# Print the decision boundary points and the shape for the boundary points
+# This should be of the form (N, p) where $N$ is the number of data points and $p$ is the number of features
 print("Decision Boundary Points (All Features):")
 print(boundary_points)
 print(boundary_points.shape)
