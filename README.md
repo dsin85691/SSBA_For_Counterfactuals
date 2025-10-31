@@ -150,6 +150,14 @@ Here is a link to the now available publication, "Towards Personalized Treatment
 
 Link: https://arxiv.org/abs/2510.22911
 
+# Additional References / Points of Discussion # 
+
+Our algorithm is technically a discrete analogue of the bisection method applied for machine learning classification problems. There are a few exceptional cases where the algorithm may not work based on research. Pathological examples like the random classifier might make it impossible to find a solution. We do require that there will be a finite number of class changes within a line segment. 
+
+Reference:
+https://en.wikipedia.org/wiki/Bisection_method
+https://en.wikipedia.org/wiki/Nested_intervals
+
 # Feedback # 
 
 We love any recommendations from the community. If you have ever further questions, we would love to discuss with you on our work post release on arxiv. Please write a issues request, and we can discuss further on any potential comments or rooms for improvement.
