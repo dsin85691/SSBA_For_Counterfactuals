@@ -150,13 +150,19 @@ Here is a link to the now available publication, "Towards Personalized Treatment
 
 Link: https://arxiv.org/abs/2510.22911
 
-# Additional References / Points of Discussion # 
+# Additional References # 
 
 Our algorithm is technically a discrete analogue of the bisection method applied for machine learning classification problems. There are a few exceptional cases where the algorithm may not work based on research. Pathological examples like the random classifier might make it impossible to find a solution. We do require that there will be a finite number of class changes within a line segment. 
 
 Reference:
 https://en.wikipedia.org/wiki/Bisection_method
 https://en.wikipedia.org/wiki/Nested_intervals
+
+# Additional Details # 
+
+There are a few exceptional cases where the algorithm may not work based on research. Pathological examples like the random classifier might make it impossible to find a solution. We do require that there will be a finite number of class changes within a line segment. Majority of machine learning models will not behave like the pathological example. 
+
+In this case, a random classifier would be some model that selects each class with equal probability. Basically, any classifier that produces an infinite number of class changes on a line segment would not result in convergence. 
 
 # Feedback # 
 
