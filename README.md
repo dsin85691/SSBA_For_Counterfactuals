@@ -162,7 +162,7 @@ https://en.wikipedia.org/wiki/Nested_intervals
 
 There are a few exceptional cases where the algorithm may not work based on research. Pathological examples like the random classifier might make it impossible to find a solution. We do require that there will be a finite number of class changes within a line segment. Majority of machine learning models will not behave like the pathological example. 
 
-In this case, a random classifier would be some model that selects each class with equal probability. Basically, any classifier that produces an infinite number of class changes on a line segment would not result in convergence. 
+In this case, a random classifier would be some model that selects each class with equal probability. For a random classifier, every point is a boundary point (50% probability for each class), so there is no convergence in this case. 
 
 # Feedback # 
 
