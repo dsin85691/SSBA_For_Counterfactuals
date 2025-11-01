@@ -105,7 +105,7 @@ print(boundary_points.shape)
 
 # Setting up the GPU Environment # 
 
-Constructing the GPU environment can be done at the link: https://docs.rapids.ai/install/?_gl=1*1km83yv*_ga*MTcxOTEzMjc1NC4xNzU1MTA2Njc1*_ga_RKXFW6CM42*czE3NTYwODA3NjgkbzckZzEkdDE3NTYwODExNDgkajYwJGwwJGgw. To set up RAPIDS, ensure you have CUDA installed or an Nvidia GPU preinstalled on your computer before starting the installation. Make sure to choose "specific packages," and choose cuDF, cuML, and JupyterLab for comparable results. 
+Constructing the GPU environment can be done at the link: https://docs.rapids.ai/install/?_gl=1*1km83yv*_ga*MTcxOTEzMjc1NC4xNzU1MTA2Njc1*_ga_RKXFW6CM42*czE3NTYwODA3NjgkbzckZzEkdDE3NTYwODExNDgkajYwJGwwJGgw. To set up RAPIDS, ensure you have CUDA installed and an Nvidia GPU preinstalled on your computer before starting the installation. Make sure to choose "specific packages," and choose cuDF, cuML, and JupyterLab for comparable results. 
 
 So, a command like this (lets you set up with conda): 
 
