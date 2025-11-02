@@ -1,8 +1,8 @@
 # Notice # 
 
-Due to some errors in the paper, we will be pulling the paper by Tuesday, November 4th. We are sorry for this inconvenience. The repository will be left open until further notice.
+Due to some errors in the paper, we will be pulling the paper by Tuesday, November 4th. We are sorry for this inconvenience. The repository will be left open until further notice. 
 
-# Segmented Sampling for Boundary Approximation (SSBA) for Counterfactual Explanations
+# Optimal Point for Boundary Approximation (OPBA) for Counterfactual Explanations
 
 ## Methodology ##
 Counterfactual explanations are the backbone of our methodology, and they help us formulate how we approach the generation of counterfactuals alongside the ability to compare similar lines of prior research. As defined by Dandl and Molnar in their book "Interpretable Machine Learning," a counterfactual explanation can be defined as "the smallest change to the feature values that changes the prediction to a predefined output" (Dandl & Molnar, [2019](https://christophm.github.io/interpretable-ml-book/)). Please refer to the book or similar references for further explanation of the definition of a counterfactual explanation.
