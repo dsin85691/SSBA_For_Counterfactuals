@@ -134,12 +134,6 @@ You may also submit an issue request for updates/changes.
 
 Also, if you want to fork a change and add it to the repository, I will review your request and see if I can approve of the changes. 
 
-# Points of Discussion # 
-
-There are a few exceptional cases where the algorithm may not work based on research. Pathological examples like the random classifier might make it impossible to find a solution. We do require that there will be a finite number of class changes within a line segment. Majority of machine learning models will not behave like the pathological example. 
-
-In this case, a random classifier would be some model that selects each class with equal probability. For a random classifier, every point is a boundary point (50% probability for each class), so there is no convergence in this case. 
-
 # Feedback # 
 
 We love any recommendations from the community. If you have ever further questions, we would love to discuss with you on our work post release on arxiv. Please write a issues request, and we can discuss further on any potential comments or rooms for improvement.
