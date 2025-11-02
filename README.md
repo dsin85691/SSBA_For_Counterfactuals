@@ -1,3 +1,7 @@
+# Notice # 
+
+Due to some errors in the paper, we will be pulling the paper by Tuesday, November 4th. We are sorry for this inconvenience. 
+
 # Segmented Sampling for Boundary Approximation (SSBA) for Counterfactual Explanations
 
 ## Methodology ##
