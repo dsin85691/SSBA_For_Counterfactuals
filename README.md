@@ -134,36 +134,6 @@ You may also submit an issue request for updates/changes.
 
 Also, if you want to fork a change and add it to the repository, I will review your request and see if I can approve of the changes. 
 
-# BibTeX / Reference # 
-
-If you ever use our work in a corresponding paper, research work, or application, we would highly encourage you to reference us in your work.  
-
-```
-@misc{sinMon Oct 27 2025 01:28:57 GMT+0000 (Coordinated Universal Time)towardspersonalizedtreatment,
-      title={Towards Personalized Treatment Plan: Geometrical Model-Agnostic Approach to Counterfactual Explanations},
-      author={Daniel Sin and Milad Toutounchian},
-      year={Mon Oct 27 2025 01:28:57 GMT+0000 (Coordinated Universal Time)},
-      eprint={2510.22911},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2510.22911},
-}
-```
-
-# Link to Paper # 
-
-Here is a link to the now available publication, "Towards Personalized Treatment Plan: Geometrical Model-Agnostic Approach to Counterfactual Explanations." Please check it out, and we are welcome to hear feedback back from the community. 
-
-Link: https://arxiv.org/abs/2510.22911
-
-# Analogues / Additional References # 
-
-Our algorithm is technically a discrete analogue of the bisection method applied for machine learning classification problems. 
-
-Reference:
-https://en.wikipedia.org/wiki/Bisection_method
-https://en.wikipedia.org/wiki/Nested_intervals
-
 # Points of Discussion # 
 
 There are a few exceptional cases where the algorithm may not work based on research. Pathological examples like the random classifier might make it impossible to find a solution. We do require that there will be a finite number of class changes within a line segment. Majority of machine learning models will not behave like the pathological example. 
