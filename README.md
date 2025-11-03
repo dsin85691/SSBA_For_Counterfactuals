@@ -1,6 +1,6 @@
 # Notice # 
 
-Due to some errors and issues in the paper related to questions of similarity in terms of work, we will be pulling the paper by Tuesday, November 4th. We are sorry for this inconvenience. The repository will be left open until further notice. During this time, we will refine our work for further differentiation and make sure that our method is clearly different from any other methodology.
+Since the paper is already public, we will leave the repository open.
 
 # Optimal Point for Boundary Approximation (OPBA) for Counterfactual Explanations
 
