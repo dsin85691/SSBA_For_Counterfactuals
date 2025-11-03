@@ -1,6 +1,6 @@
 # Notice # 
 
-Since the paper is already public, we will leave the repository open.
+Since the paper is already public, we will leave the repository open. We have changed the name of the method and added a new citation for the bisection approach. For future work, we will differentiate our work further.
 
 # Optimal Point for Boundary Approximation (OPBA) for Counterfactual Explanations
 
