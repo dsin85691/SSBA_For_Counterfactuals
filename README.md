@@ -2,7 +2,7 @@
 
 Since the paper is already public, we will leave the repository open. We have changed the name of the method and added a new citation for the bisection approach. For future work, we will differentiate our work further.
 
-# Optimal Point for Boundary Approximation (OPBA) for Counterfactual Explanations
+# Segmented Sampling for Boundary Approximation (SSBA) for Counterfactual Explanations
 
 ## Methodology ##
 Counterfactual explanations are the backbone of our methodology, and they help us formulate how we approach the generation of counterfactuals alongside the ability to compare similar lines of prior research. As defined by Dandl and Molnar in their book "Interpretable Machine Learning," a counterfactual explanation can be defined as "the smallest change to the feature values that changes the prediction to a predefined output" (Dandl & Molnar, [2019](https://christophm.github.io/interpretable-ml-book/)). Please refer to the book or similar references for further explanation of the definition of a counterfactual explanation.
@@ -125,6 +125,19 @@ To run the Alibi Jupyter Notebook, you need to run an environment specific to Al
 
 Make sure to run the ```cpu_environment.txt``` file after generating your environment. 
 
+# BibTex / Citation # 
+
+```
+@misc{sin2025personalizedtreatmentplangeometrical,
+      title={Towards Personalized Treatment Plan: Geometrical Model-Agnostic Approach to Counterfactual Explanations}, 
+      author={Daniel Sin and Milad Toutounchian},
+      year={2025},
+      eprint={2510.22911},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2510.22911}, 
+}
+```
 
 # Errors # 
 
